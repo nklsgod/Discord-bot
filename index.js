@@ -111,11 +111,7 @@ async function chatWithGPT(message) {
 }
 
 // Vor der playYouTube Funktion
-play.setToken({
-  useragent: [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-  ]
-});
+await play.authorization();
 
 // Ersetze die playYouTube Funktion
 async function playYouTube(url, channel, message) {
@@ -140,7 +136,8 @@ async function playYouTube(url, channel, message) {
     // Stream mit play-dl erstellen
     const { stream, type } = await play.stream(url, {
       discordPlayerCompatibility: true,
-      quality: 2
+      quality: 2,
+      cookies: play.getFreeClientID()
     });
 
     const resource = createAudioResource(stream, {
