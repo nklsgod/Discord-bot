@@ -3,7 +3,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection, VoiceConnectionStatus } = require('@discordjs/voice');
 const axios = require('axios');
 const OpenAI = require('openai');
-const play = require('play-dl');
+const ytdl = require('ytdl-core');
 
 const client = new Client({
   intents: [
@@ -110,12 +110,6 @@ async function chatWithGPT(message) {
   }
 }
 
-// Stattdessen, füge diese Initialisierung hinzu
-play.setToken({
-  useragent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
-  cookie: process.env.YOUTUBE_COOKIE
-});
-
 // Ersetze die playYouTube Funktion
 async function playYouTube(url, channel, message) {
   try {
@@ -136,15 +130,15 @@ async function playYouTube(url, channel, message) {
       selfMute: false
     });
 
-    // Stream mit play-dl erstellen
-    const { stream, type } = await play.stream(url, {
-      discordPlayerCompatibility: true,
-      quality: 2,
-      cookies: play.getFreeClientID()
+    // Stream erstellen
+    const stream = ytdl(url, {
+      filter: 'audioonly',
+      quality: 'highestaudio',
+      highWaterMark: 1 << 25
     });
 
     const resource = createAudioResource(stream, {
-      inputType: type,
+      inputType: 'webm/opus',
       inlineVolume: true
     });
 
@@ -155,9 +149,9 @@ async function playYouTube(url, channel, message) {
     player.play(resource);
 
     // Video Info abrufen
-    const info = await play.video_info(url);
-    console.log(`✅ Spiele nun: "${info.video_details.title}"`);
-    return message.reply(`Spiele jetzt: **${info.video_details.title}**`);
+    const videoInfo = await ytdl.getBasicInfo(url);
+    console.log(`✅ Spiele nun: "${videoInfo.videoDetails.title}"`);
+    return message.reply(`Spiele jetzt: **${videoInfo.videoDetails.title}**`);
 
   } catch (error) {
     console.error('❌ Fehler beim Abspielen:', error);
