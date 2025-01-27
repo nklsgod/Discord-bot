@@ -110,8 +110,11 @@ async function chatWithGPT(message) {
   }
 }
 
-// Vor der playYouTube Funktion
-await play.authorization();
+// Stattdessen, füge diese Initialisierung hinzu
+play.setToken({
+  useragent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
+  cookie: process.env.YOUTUBE_COOKIE
+});
 
 // Ersetze die playYouTube Funktion
 async function playYouTube(url, channel, message) {
